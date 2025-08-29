@@ -64,7 +64,6 @@ for index in range(word_length):
 placeholder_list = list(placeholder)
 word_count = list(word)
 
-print(word)
 print(placeholder)
 
 while word_count != placeholder_list and life>0:
