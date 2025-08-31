@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}Log Anxiety Attack - Alfred{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-shield-alt text-warning"></i> Log Your Anxiety Experience
+                </h3>
+                <p class="text-muted mb-0 mt-2">You're safe here. Your words will help us understand and track your journey.</p>
+            </div>
+            <div class="card-body">
+                <form id="anxietyForm">
+                    <input type="hidden" id="userId" value="{{ request.args.get('user_id', 'default_user') }}">
+                    
+                    <!-- Primary: Detailed Description -->
+                    <div class="form-section">
+                        <label for="experience" class="form-section-title">
+                            <i class="fas fa-pen"></i> Describe what happened and how you felt:
+                        </label>
+                        <div class="form-section-content">
+                            <textarea 
+                                class="form-control" 
+                                id="experience" 
+                                name="experience" 
+                                rows="5" 
+                                placeholder="What happened? How did you feel physically and emotionally? What thoughts were going through your mind? What triggered this? Take your time to really describe your experience..."
+                                style="resize: none; font-size: 1.1rem;"
+                                required
+                            ></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle"></i> 
+                                Your detailed description is what matters most for understanding your patterns
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary: Intensity Scale (Optional) -->
+                    <div class="form-section">
+                        <label class="form-section-title">
+                            <i class="fas fa-chart-bar"></i> Intensity Level (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <p class="text-muted mb-3">If you want to note the intensity, you can select one below:</p>
+                            <div class="mood-scale">
+                                <div class="intensity-option mood-option" data-intensity="1">
+                                    <div class="mood-emoji">😌</div>
+                                    <div class="mood-label">Very Mild</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="2">
+                                    <div class="mood-emoji">😊</div>
+                                    <div class="mood-label">Mild</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="3">
+                                    <div class="mood-emoji">😐</div>
+                                    <div class="mood-label">Slight</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="4">
+                                    <div class="mood-emoji">😟</div>
+                                    <div class="mood-label">Moderate</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="5">
+                                    <div class="mood-emoji">😰</div>
+                                    <div class="mood-label">Medium</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="6">
+                                    <div class="mood-emoji">😨</div>
+                                    <div class="mood-label">High</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="7">
+                                    <div class="mood-emoji">😱</div>
+                                    <div class="mood-label">Very High</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="8">
+                                    <div class="mood-emoji">😵</div>
+                                    <div class="mood-label">Severe</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="9">
+                                    <div class="mood-emoji">😵‍💫</div>
+                                    <div class="mood-label">Extreme</div>
+                                </div>
+                                <div class="intensity-option mood-option" data-intensity="10">
+                                    <div class="mood-emoji">💀</div>
+                                    <div class="mood-label">Panic</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="intensity" name="intensity" value="">
+                            <div class="form-text mt-2">
+                                <i class="fas fa-lightbulb"></i> 
+                                This is optional - your detailed description tells the real story
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attack Duration -->
+                    <div class="form-section">
+                        <label for="duration" class="form-section-title">
+                            <i class="fas fa-clock"></i> How long did it last? (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        id="duration" 
+                                        name="duration" 
+                                        min="1" 
+                                        max="480" 
+                                        placeholder="e.g., 15 minutes"
+                                    >
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i> 
+                                        If it lasted more than 8 hours, enter 480
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Triggers -->
+                    <div class="form-section">
+                        <label for="triggers" class="form-section-title">
+                            <i class="fas fa-exclamation-triangle"></i> What triggered this? (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <textarea 
+                                class="form-control" 
+                                id="triggers" 
+                                name="triggers" 
+                                rows="3" 
+                                placeholder="What happened before the attack? What were you thinking about? Any specific situations, thoughts, or circumstances that led to this?"
+                                style="resize: none;"
+                            ></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-lightbulb"></i> 
+                                Understanding triggers can help you prepare for future situations
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Symptoms -->
+                    <div class="form-section">
+                        <label class="form-section-title">
+                            <i class="fas fa-heartbeat"></i> What symptoms did you experience? (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <p class="text-muted mb-3">Check any symptoms you experienced:</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="rapid-heartbeat" id="symptom1">
+                                        <label class="form-check-label" for="symptom1">
+                                            Rapid heartbeat
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="shortness-of-breath" id="symptom2">
+                                        <label class="form-check-label" for="symptom2">
+                                            Shortness of breath
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="sweating" id="symptom3">
+                                        <label class="form-check-label" for="symptom3">
+                                            Sweating
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="trembling" id="symptom4">
+                                        <label class="form-check-label" for="symptom4">
+                                            Trembling/shaking
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="chest-pain" id="symptom5">
+                                        <label class="form-check-label" for="symptom5">
+                                            Chest pain/discomfort
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="nausea" id="symptom6">
+                                        <label class="form-check-label" for="symptom6">
+                                            Nausea/dizziness
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="fear" id="symptom7">
+                                        <label class="form-check-label" for="symptom7">
+                                            Fear of losing control
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="detachment" id="symptom8">
+                                        <label class="form-check-label" for="symptom8">
+                                            Feeling detached
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="chills" id="symptom9">
+                                        <label class="form-check-label" for="symptom9">
+                                            Chills/hot flashes
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" value="other" id="symptom10">
+                                        <label class="form-check-label" for="symptom10">
+                                            Other symptoms
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="symptoms" name="symptoms">
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle"></i> 
+                                This helps track patterns in your physical responses
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coping Strategies -->
+                    <div class="form-section">
+                        <label for="copingStrategies" class="form-section-title">
+                            <i class="fas fa-tools"></i> What helped you cope? (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <textarea 
+                                class="form-control" 
+                                id="copingStrategies" 
+                                name="copingStrategies" 
+                                rows="3" 
+                                placeholder="What techniques or strategies helped? Deep breathing? Calling someone? Going for a walk? What worked for you in this moment?"
+                                style="resize: none;"
+                            ></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-star"></i> 
+                                Remember what works for you - this information is valuable for future situations
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg" id="submitBtn">
+                            <i class="fas fa-save"></i> Save Your Experience
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Support and Coping Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-hands-helping text-info"></i> Quick Coping Techniques
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <i class="fas fa-wind fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6>4-4-6 Breathing</h6>
+                                <small class="text-muted">Inhale 4 counts, hold 4, exhale 6</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <i class="fas fa-hand-holding-heart fa-2x text-success"></i>
+                            </div>
+                            <div>
+                                <h6>Grounding</h6>
+                                <small class="text-muted">Name 5 things you can see, hear, feel</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <i class="fas fa-mobile-alt fa-2x text-warning"></i>
+                            </div>
+                            <div>
+                                <h6>Call Someone</h6>
+                                <small class="text-muted">Reach out to a trusted friend or family member</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3">
+                                <i class="fas fa-walking fa-2x text-info"></i>
+                            </div>
+                            <div>
+                                <h6>Move Around</h6>
+                                <small class="text-muted">Take a short walk or stretch</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Information -->
+        <div class="card mt-4 border-danger">
+            <div class="card-body text-center">
+                <h5 class="text-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Need Immediate Help?
+                </h5>
+                <p class="text-muted mb-2">
+                    If you're experiencing a severe panic attack or having thoughts of self-harm, 
+                    please reach out for professional help immediately.
+                </p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <span class="badge bg-danger">Emergency: 911</span>
+                    <span class="badge bg-primary">Crisis Line: 988</span>
+                    <span class="badge bg-success">Text HOME to 741741</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let selectedIntensity = null;
+
+    // Intensity selection (optional)
+    document.querySelectorAll('.intensity-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove previous selection
+            document.querySelectorAll('.intensity-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Select current option
+            this.classList.add('selected');
+            selectedIntensity = parseInt(this.dataset.intensity);
+            document.getElementById('intensity').value = selectedIntensity;
+            
+            // Add visual feedback
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+    });
+
+    // Collect symptoms
+    function collectSymptoms() {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+        const symptoms = Array.from(checkboxes).map(cb => cb.value);
+        return symptoms.join(', ');
+    }
+
+    // Form submission
+    document.getElementById('anxietyForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const experience = document.getElementById('experience').value.trim();
+        if (!experience) {
+            alert('Please describe your experience. Your words are what matter most for understanding and tracking your journey.');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('/log_anxiety', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: document.getElementById('userId').value,
+                    intensity: selectedIntensity || 5, // Default to 5 if not selected
+                    duration: document.getElementById('duration').value || 0,
+                    triggers: document.getElementById('triggers').value,
+                    symptoms: collectSymptoms(),
+                    coping_strategies: document.getElementById('copingStrategies').value,
+                    experience: experience // New field for detailed description
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                successAlert.innerHTML = `
+                    <i class="fas fa-check-circle"></i> ${result.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').appendChild(successAlert);
+                
+                // Reset form
+                document.getElementById('anxietyForm').reset();
+                document.querySelectorAll('.intensity-option').forEach(opt => opt.classList.remove('selected'));
+                selectedIntensity = null;
+                
+                // Redirect to home after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+            } else {
+                throw new Error(result.message || 'Failed to log anxiety experience');
+            }
+        } catch (error) {
+            // Show error message
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorAlert.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i> Error: ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.card-body').appendChild(errorAlert);
+        } finally {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Add some visual enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to form elements
+        const formElements = document.querySelectorAll('.form-control, .form-select');
+        formElements.forEach(element => {
+            element.addEventListener('focus', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add hover effects to symptom checkboxes
+        const checkboxes = document.querySelectorAll('.form-check');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            checkbox.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Focus on the main text area when page loads
+        document.getElementById('experience').focus();
+    });
+</script>
+{% endblock %}

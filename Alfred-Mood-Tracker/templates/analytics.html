@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Your Mental Health Analytics - Alfred{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4 text-center" style="color: var(--accent-color);">
+            <i class="fas fa-chart-line"></i> Your Mental Health Journey
+        </h2>
+        <p class="text-center mb-5" style="color: var(--text-secondary); font-size: 1.1rem;">
+            Track your progress, understand your patterns, and celebrate your growth
+        </p>
+    </div>
+</div>
+
+<!-- Date Range Selection -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt"></i> Choose Your Time Range
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <label for="startDate" class="form-label">Start Date:</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="endDate" class="form-label">End Date:</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Quick Select:</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-primary btn-sm" onclick="setDateRange(7)">7 Days</button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="setDateRange(30)">30 Days</button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="setDateRange(90)">3 Months</button>
+                            <button class="btn btn-outline-primary btn-sm" onclick="setDateRange(365)">1 Year</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary" onclick="updateCharts()">
+                        <i class="fas fa-sync-alt"></i> Update Charts
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Statistics -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="avgMood">-</div>
+                <div class="stat-label">Average Mood</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalEntries">-</div>
+                <div class="stat-label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgAnxiety">-</div>
+                <div class="stat-label">Average Anxiety</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="anxietyAttacks">-</div>
+                <div class="stat-label">Anxiety Attacks</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mood Trends Chart -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-smile"></i> Your Mood Over Time
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="moodChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Anxiety Trends Chart -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shield-alt"></i> Anxiety Level Trends
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="anxietyChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Anxiety Attack Analysis -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> Anxiety Attack Patterns
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="anxietyAttackChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Insights and Recommendations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb"></i> Insights & Recommendations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="insights">
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>Select a date range to see personalized insights about your mental health journey.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Entries -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> Recent Entries
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if mood_data %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Mood</th>
+                                    <th>Anxiety</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for entry in mood_data[:10] %}
+                                <tr>
+                                    <td>{{ entry.timestamp.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ entry.mood_score }}/10</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-warning">{{ entry.anxiety_level }}/10</span>
+                                    </td>
+                                    <td>
+                                        {% if entry.mood_text %}
+                                            {{ entry.mood_text[:50] }}{% if entry.mood_text|length > 50 %}...{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">No notes</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No mood entries found for the selected date range.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let moodChart, anxietyChart, anxietyAttackChart;
+    let currentData = {};
+
+    // Initialize charts when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date range (last 30 days)
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        
+        // Initialize charts
+        initializeCharts();
+        
+        // Load initial data
+        updateCharts();
+    });
+
+    function initializeCharts() {
+        // Mood Chart
+        const moodCtx = document.getElementById('moodChart').getContext('2d');
+        moodChart = new Chart(moodCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Mood Score',
+                    data: [],
+                    borderColor: '#8b9a8b',
+                    backgroundColor: 'rgba(139, 154, 139, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Anxiety Chart
+        const anxietyCtx = document.getElementById('anxietyChart').getContext('2d');
+        anxietyChart = new Chart(anxietyCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Anxiety Level',
+                    data: [],
+                    borderColor: '#b8a07a',
+                    backgroundColor: 'rgba(184, 160, 122, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Anxiety Attack Chart
+        const attackCtx = document.getElementById('anxietyAttackChart').getContext('2d');
+        anxietyAttackChart = new Chart(attackCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Attack Intensity',
+                    data: [],
+                    backgroundColor: 'rgba(160, 122, 122, 0.8)',
+                    borderColor: '#a07a7a',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    function setDateRange(days) {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - days);
+        
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        
+        updateCharts();
+    }
+
+    async function updateCharts() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const userId = '{{ user_id }}';
+
+        if (!startDate || !endDate) {
+            alert('Please select both start and end dates');
+            return;
+        }
+
+        try {
+            // Fetch mood data
+            const moodResponse = await fetch(`/api/mood_data?user_id=${userId}&start_date=${startDate}&end_date=${endDate}`);
+            const moodData = await moodResponse.json();
+
+            // Fetch anxiety attack data
+            const anxietyResponse = await fetch(`/api/anxiety_data?user_id=${userId}&start_date=${startDate}&end_date=${endDate}`);
+            const anxietyData = await anxietyResponse.json();
+
+            // Update charts
+            updateMoodChart(moodData);
+            updateAnxietyChart(moodData);
+            updateAnxietyAttackChart(anxietyData);
+            
+            // Update statistics
+            updateStatistics(moodData, anxietyData);
+            
+            // Generate insights
+            generateInsights(moodData, anxietyData);
+
+        } catch (error) {
+            console.error('Error updating charts:', error);
+        }
+    }
+
+    function updateMoodChart(data) {
+        const labels = data.map(entry => entry.date);
+        const scores = data.map(entry => entry.mood_score);
+
+        moodChart.data.labels = labels;
+        moodChart.data.datasets[0].data = scores;
+        moodChart.update();
+    }
+
+    function updateAnxietyChart(data) {
+        const labels = data.map(entry => entry.date);
+        const levels = data.map(entry => entry.anxiety_level);
+
+        anxietyChart.data.labels = labels;
+        anxietyChart.data.datasets[0].data = levels;
+        anxietyChart.update();
+    }
+
+    function updateAnxietyAttackChart(data) {
+        const labels = data.map(entry => entry.date);
+        const intensities = data.map(entry => entry.intensity);
+
+        anxietyAttackChart.data.labels = labels;
+        anxietyAttackChart.data.datasets[0].data = intensities;
+        anxietyAttackChart.update();
+    }
+
+    function updateStatistics(moodData, anxietyData) {
+        if (moodData.length > 0) {
+            const avgMood = (moodData.reduce((sum, entry) => sum + entry.mood_score, 0) / moodData.length).toFixed(1);
+            const avgAnxiety = (moodData.reduce((sum, entry) => sum + entry.anxiety_level, 0) / moodData.length).toFixed(1);
+            
+            document.getElementById('avgMood').textContent = avgMood;
+            document.getElementById('totalEntries').textContent = moodData.length;
+            document.getElementById('avgAnxiety').textContent = avgAnxiety;
+        }
+        
+        document.getElementById('anxietyAttacks').textContent = anxietyData.length;
+    }
+
+    function generateInsights(moodData, anxietyData) {
+        const insightsDiv = document.getElementById('insights');
+        
+        if (moodData.length === 0) {
+            insightsDiv.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <p>No data available for the selected date range.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Calculate insights
+        const avgMood = moodData.reduce((sum, entry) => sum + entry.mood_score, 0) / moodData.length;
+        const avgAnxiety = moodData.reduce((sum, entry) => sum + entry.anxiety_level, 0) / moodData.length;
+        const moodTrend = moodData[moodData.length - 1].mood_score - moodData[0].mood_score;
+        
+        let insights = '<div class="row">';
+        
+        // Mood insights
+        insights += `
+            <div class="col-md-6 mb-3">
+                <div class="card h-100" style="border-left: 4px solid var(--accent-color);">
+                    <div class="card-body">
+                        <h6><i class="fas fa-smile text-primary"></i> Mood Analysis</h6>
+                        <p class="mb-2">Your average mood: <strong>${avgMood.toFixed(1)}/10</strong></p>
+                        ${moodTrend > 0 ? 
+                            '<span class="badge bg-success">Improving</span>' : 
+                            moodTrend < 0 ? 
+                            '<span class="badge bg-warning">Declining</span>' : 
+                            '<span class="badge bg-secondary">Stable</span>'
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Anxiety insights
+        insights += `
+            <div class="col-md-6 mb-3">
+                <div class="card h-100" style="border-left: 4px solid var(--warning-color);">
+                    <div class="card-body">
+                        <h6><i class="fas fa-shield-alt text-warning"></i> Anxiety Analysis</h6>
+                        <p class="mb-2">Your average anxiety: <strong>${avgAnxiety.toFixed(1)}/10</strong></p>
+                        <p class="mb-0">Anxiety attacks: <strong>${anxietyData.length}</strong></p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Recommendations
+        let recommendations = '<div class="col-12"><h6 class="mb-3"><i class="fas fa-lightbulb text-info"></i> Personalized Recommendations</h6><ul>';
+        
+        if (avgMood < 5) {
+            recommendations += '<li>Consider practicing daily gratitude or positive affirmations</li>';
+        }
+        if (avgAnxiety > 6) {
+            recommendations += '<li>Try incorporating regular breathing exercises into your routine</li>';
+        }
+        if (anxietyData.length > 0) {
+            recommendations += '<li>Keep track of your triggers to better prepare for future situations</li>';
+        }
+        if (moodData.length < 7) {
+            recommendations += '<li>Try to log your mood more frequently for better insights</li>';
+        }
+        
+        recommendations += '</ul></div>';
+        
+        insights += recommendations + '</div>';
+        insightsDiv.innerHTML = insights;
+    }
+</script>
+{% endblock %}
+

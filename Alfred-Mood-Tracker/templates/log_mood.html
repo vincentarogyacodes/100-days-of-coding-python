@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Log Your Mood - Alfred{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-smile text-primary"></i> How are you feeling today?
+                </h3>
+                <p class="text-muted mb-0 mt-2">Your words matter more than any scale. Take your time to express yourself.</p>
+            </div>
+            <div class="card-body">
+                <form id="moodForm">
+                    <input type="hidden" id="userId" value="{{ request.args.get('user_id', 'default_user') }}">
+                    
+                    <!-- Primary: Mood Description -->
+                    <div class="form-section">
+                        <label for="moodText" class="form-section-title">
+                            <i class="fas fa-pen"></i> Tell me about your day and how you're feeling:
+                        </label>
+                        <div class="form-section-content">
+                            <textarea 
+                                class="form-control" 
+                                id="moodText" 
+                                name="moodText" 
+                                rows="5" 
+                                placeholder="What's on your mind? How has your day been? What emotions are you experiencing? What made you feel this way? Take your time to really express yourself..."
+                                style="resize: none; font-size: 1.1rem;"
+                                required
+                            ></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle"></i> 
+                                Alfred will analyze your text to understand your emotions and provide insights
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary: Quick Mood Scale (Optional) -->
+                    <div class="form-section">
+                        <label class="form-section-title">
+                            <i class="fas fa-chart-bar"></i> Quick Mood Check (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <p class="text-muted mb-3">If you want to add a quick rating, you can select one below:</p>
+                            <div class="mood-scale">
+                                <div class="mood-option" data-score="1">
+                                    <div class="mood-emoji">😢</div>
+                                    <div class="mood-label">Terrible</div>
+                                </div>
+                                <div class="mood-option" data-score="2">
+                                    <div class="mood-emoji">😞</div>
+                                    <div class="mood-label">Very Bad</div>
+                                </div>
+                                <div class="mood-option" data-score="3">
+                                    <div class="mood-emoji">😔</div>
+                                    <div class="mood-label">Bad</div>
+                                </div>
+                                <div class="mood-option" data-score="4">
+                                    <div class="mood-emoji">😐</div>
+                                    <div class="mood-label">Poor</div>
+                                </div>
+                                <div class="mood-option" data-score="5">
+                                    <div class="mood-emoji">😶</div>
+                                    <div class="mood-label">Okay</div>
+                                </div>
+                                <div class="mood-option" data-score="6">
+                                    <div class="mood-emoji">🙂</div>
+                                    <div class="mood-label">Fair</div>
+                                </div>
+                                <div class="mood-option" data-score="7">
+                                    <div class="mood-emoji">😊</div>
+                                    <div class="mood-label">Good</div>
+                                </div>
+                                <div class="mood-option" data-score="8">
+                                    <div class="mood-emoji">😄</div>
+                                    <div class="mood-label">Very Good</div>
+                                </div>
+                                <div class="mood-option" data-score="9">
+                                    <div class="mood-emoji">😁</div>
+                                    <div class="mood-label">Great</div>
+                                </div>
+                                <div class="mood-option" data-score="10">
+                                    <div class="mood-emoji">🤩</div>
+                                    <div class="mood-label">Amazing</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="moodScore" name="moodScore" value="">
+                            <div class="form-text mt-2">
+                                <i class="fas fa-lightbulb"></i> 
+                                This is completely optional - your words tell the real story
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary: Anxiety Level (Optional) -->
+                    <div class="form-section">
+                        <label class="form-section-title">
+                            <i class="fas fa-shield-alt"></i> Anxiety Level (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <p class="text-muted mb-3">If you're experiencing anxiety, you can note the level:</p>
+                            <div class="mood-scale">
+                                <div class="anxiety-option mood-option" data-level="1">
+                                    <div class="mood-emoji">😌</div>
+                                    <div class="mood-label">Calm</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="2">
+                                    <div class="mood-emoji">😊</div>
+                                    <div class="mood-label">Relaxed</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="3">
+                                    <div class="mood-emoji">😐</div>
+                                    <div class="mood-label">Slight</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="4">
+                                    <div class="mood-emoji">😟</div>
+                                    <div class="mood-label">Mild</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="5">
+                                    <div class="mood-emoji">😰</div>
+                                    <div class="mood-label">Moderate</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="6">
+                                    <div class="mood-emoji">😨</div>
+                                    <div class="mood-label">High</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="7">
+                                    <div class="mood-emoji">😱</div>
+                                    <div class="mood-label">Very High</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="8">
+                                    <div class="mood-emoji">😵</div>
+                                    <div class="mood-label">Severe</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="9">
+                                    <div class="mood-emoji">😵‍💫</div>
+                                    <div class="mood-label">Extreme</div>
+                                </div>
+                                <div class="anxiety-option mood-option" data-level="10">
+                                    <div class="mood-emoji">💀</div>
+                                    <div class="mood-label">Panic</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="anxietyLevel" name="anxietyLevel" value="">
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle"></i> 
+                                Only if you want to track this - your description is what matters most
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Context -->
+                    <div class="form-section">
+                        <label for="notes" class="form-section-title">
+                            <i class="fas fa-sticky-note"></i> Additional Context (Optional):
+                        </label>
+                        <div class="form-section-content">
+                            <textarea 
+                                class="form-control" 
+                                id="notes" 
+                                name="notes" 
+                                rows="3" 
+                                placeholder="Any other thoughts, triggers, context, or things you'd like to remember about this moment?"
+                                style="resize: none;"
+                            ></textarea>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-lightbulb"></i> 
+                                Sometimes the little details help us understand our patterns better
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <i class="fas fa-save"></i> Save Your Thoughts
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Support Message -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h5 class="text-success">
+                    <i class="fas fa-heart"></i> Remember
+                </h5>
+                <p class="text-muted mb-0">
+                    Your words are powerful. By taking the time to express your feelings, you're building self-awareness 
+                    and creating a valuable record of your emotional journey. This is self-care in its purest form.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let selectedMood = null;
+    let selectedAnxiety = null;
+
+    // Mood selection (optional)
+    document.querySelectorAll('.mood-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove previous selection
+            document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Select current option
+            this.classList.add('selected');
+            selectedMood = parseInt(this.dataset.score);
+            document.getElementById('moodScore').value = selectedMood;
+            
+            // Add visual feedback
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+    });
+
+    // Anxiety selection (optional)
+    document.querySelectorAll('.anxiety-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove previous selection
+            document.querySelectorAll('.anxiety-option').forEach(opt => opt.classList.remove('selected'));
+            
+            // Select current option
+            this.classList.add('selected');
+            selectedAnxiety = parseInt(this.dataset.level);
+            document.getElementById('anxietyLevel').value = selectedAnxiety;
+            
+            // Add visual feedback
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+    });
+
+    // Form submission
+    document.getElementById('moodForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const moodText = document.getElementById('moodText').value.trim();
+        if (!moodText) {
+            alert('Please share how you\'re feeling. Your words are what matter most.');
+            return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('/log_mood', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: document.getElementById('userId').value,
+                    mood_score: selectedMood || 5, // Default to 5 if not selected
+                    anxiety_level: selectedAnxiety || 5, // Default to 5 if not selected
+                    mood_text: moodText,
+                    notes: document.getElementById('notes').value
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                successAlert.innerHTML = `
+                    <i class="fas fa-check-circle"></i> ${result.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.card-body').appendChild(successAlert);
+                
+                // Reset form
+                document.getElementById('moodForm').reset();
+                document.querySelectorAll('.mood-option, .anxiety-option').forEach(opt => opt.classList.remove('selected'));
+                selectedMood = null;
+                selectedAnxiety = null;
+                
+                // Redirect to home after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                throw new Error(result.message || 'Failed to save mood');
+            }
+        } catch (error) {
+            // Show error message
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorAlert.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i> Error: ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.card-body').appendChild(errorAlert);
+        } finally {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    // Add some visual enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to form elements
+        const formElements = document.querySelectorAll('.form-control, .form-select');
+        formElements.forEach(element => {
+            element.addEventListener('focus', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Focus on the main text area when page loads
+        document.getElementById('moodText').focus();
+    });
+</script>
+{% endblock %}

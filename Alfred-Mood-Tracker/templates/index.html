@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Alfred - Every feeling matters{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Welcome Quote -->
+        <div class="quote-card slide-in">
+            <div class="quote-text">
+                "{{ quote.split(' - ')[0] if ' - ' in quote else quote }}"
+            </div>
+            <div class="quote-author">
+                — {{ quote.split(' - ')[-1] if ' - ' in quote else 'Anonymous' }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row section-spacing">
+    <div class="col-12">
+        <h2 class="mb-4 text-center page-header" style="color: var(--accent-color);">
+            <i class="fas fa-home"></i> Welcome to Alfred
+        </h2>
+        <p class="text-center mb-5" style="color: var(--text-secondary); font-size: 1.1rem;">
+            Your mental health companion. Track your feelings, understand your patterns, and nurture your well-being.
+        </p>
+    </div>
+</div>
+
+<div class="row section-spacing">
+    <!-- Quick Actions -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-plus-circle text-success"></i> Quick Actions
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="/log_mood" class="btn btn-primary btn-lg">
+                        <i class="fas fa-smile"></i> Log Your Mood
+                    </a>
+                    <a href="/log_anxiety" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-shield-alt"></i> Log Anxiety Attack
+                    </a>
+                    <a href="/analytics" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-chart-line"></i> View Your Progress
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Overview -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-clock text-info"></i> Recent Activity
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if recent_moods %}
+                    <div class="mb-3">
+                        <h6 class="text-muted">Your Last 5 Mood Entries:</h6>
+                        {% for mood in recent_moods %}
+                            <div class="d-flex justify-content-between align-items-center p-2 mb-2" 
+                                 style="background: rgba(139, 154, 139, 0.05); border-radius: 8px;">
+                                <div>
+                                    <span class="badge bg-primary me-2">{{ mood.mood_score }}/10</span>
+                                    {% if mood.mood_text %}
+                                        <span class="text-muted">{{ mood.mood_text[:30] }}{% if mood.mood_text|length > 30 %}...{% endif %}</span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">{{ mood.timestamp.strftime('%b %d') }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No mood entries yet. Start your journey by logging your first mood!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row section-spacing">
+    <!-- Mental Health Tips -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-lightbulb text-warning"></i> Today's Wellness Tip
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5>Practice Mindful Breathing</h5>
+                        <p class="text-muted mb-0">
+                            Take a moment to breathe deeply. Inhale for 4 counts, hold for 4, exhale for 6. 
+                            This simple technique can help reduce anxiety and bring you back to the present moment.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="display-4 text-muted">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Support Resources -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-hands-helping text-primary"></i> Remember
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                            <h6>You Matter</h6>
+                            <small class="text-muted">Your feelings are valid and important</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-seedling fa-2x text-success mb-2"></i>
+                            <h6>Growth Takes Time</h6>
+                            <small class="text-muted">Progress is not always linear</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                            <h6>Celebrate Small Wins</h6>
+                            <small class="text-muted">Every step forward counts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3">
+                            <i class="fas fa-umbrella fa-2x text-info mb-2"></i>
+                            <h6>Seek Support</h6>
+                            <small class="text-muted">It's okay to ask for help</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add some interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to support resource cards
+        const supportCards = document.querySelectorAll('.col-md-3 .p-3');
+        supportCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add click animation to quick action buttons
+        const actionButtons = document.querySelectorAll('.btn');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+    });
+</script>
+{% endblock %}
